@@ -32,6 +32,30 @@ else
     echo "The old plugin line does not exist in .zshrc."
 fi
 
+# Specify the current theme line and the new theme line
+OLD_THEME_LINE="ZSH_THEME=\"robbyrussell\""
+NEW_THEME_LINE="ZSH_THEME=\"spaceship\""
+
+# Check if Spaceship theme is installed, and if not, install it
+if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt" ] 
+then
+    echo "Spaceship theme is not installed. Installing..."
+    git clone https://github.com/spaceship-prompt/spaceship-prompt.git "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt"
+    ln -s "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme" "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship.zsh-theme"
+else
+    echo "Spaceship theme is already installed."
+fi
+
+# Check if the Spaceship theme is set in the .zshrc file, and if not, set it
+if grep -Fxq "$NEW_THEME_LINE" $ZSHRC
+then
+    echo "Spaceship theme is already set in .zshrc."
+else
+    # Replace the current theme with Spaceship
+    sed -i "s/$OLD_THEME_LINE/$NEW_THEME_LINE/g" $ZSHRC
+    echo "Spaceship theme has been set in .zshrc."
+fi
+
 # Source .zshrc to apply changes immediately
 source ~/.zshrc
 

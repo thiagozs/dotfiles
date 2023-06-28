@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Specify the filename
-filename="brew_packages.txt"
+filename="tools/brew_packages.txt"
 
 # Export the list of installed packages
 brew list > $filename

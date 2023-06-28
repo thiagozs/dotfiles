@@ -10,7 +10,7 @@ brew update
 brew upgrade
 
 # Specify the filename
-filename="brew_packages.txt"
+filename="tools/brew_packages.txt"
 
 # Check if the file exists
 if [ -f $filename ]; then

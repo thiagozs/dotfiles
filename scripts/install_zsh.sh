@@ -21,16 +21,6 @@ else
     echo "Oh-My-Zsh is already installed."
 fi
 
-# Check if the plugins are in the .zshrc file, and if not, add them
-if ! grep -q 'plugins=(git zsh-autosuggestions zsh-syntax-highlighting)' ~/.zshrc
-then
-    echo "Adding plugins to .zshrc..."
-    echo "plugins=(git zsh-autosuggestions zsh-syntax-highlighting)" >> ~/.zshrc
-    echo "Plugins added."
-else
-    echo "Plugins are already in .zshrc."
-fi
-
 # Source .zshrc to apply changes immediately
 source ~/.zshrc
 
