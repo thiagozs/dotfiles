@@ -37,11 +37,12 @@ OLD_THEME_LINE="ZSH_THEME=\"robbyrussell\""
 NEW_THEME_LINE="ZSH_THEME=\"spaceship\""
 
 # Check if Spaceship theme is installed, and if not, install it
-if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt" ] 
+if [ ! -d "$ZSH_CUSTOM/themes/spaceship-prompt" ] 
 then
     echo "Spaceship theme is not installed. Installing..."
-    git clone https://github.com/spaceship-prompt/spaceship-prompt.git "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt"
-    ln -s "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship-prompt/spaceship.zsh-theme" "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/themes/spaceship.zsh-theme"
+    git clone https://github.com/spaceship-prompt/spaceship-prompt.git "$ZSH_CUSTOM/themes/spaceship-prompt" --depth=1
+
+    ln -s "$ZSH_CUSTOM/themes/spaceship-prompt/spaceship.zsh-theme" "$ZSH_CUSTOM/themes/spaceship.zsh-theme"
 else
     echo "Spaceship theme is already installed."
 fi
