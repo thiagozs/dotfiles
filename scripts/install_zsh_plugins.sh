@@ -1,5 +1,13 @@
 #!/bin/bash
 
+# Check if ZSH_CUSTOM is set
+if [ -z "$ZSH_CUSTOM" ]; then
+    echo "ZSH_CUSTOM is not set. Aborting..."
+    exit 1
+else
+    echo "ZSH_CUSTOM is set to $ZSH_CUSTOM."
+fi
+
 # Check if zsh-autosuggestions is installed, and if not, install it
 if [ ! -d "${ZSH_CUSTOM:-~/.oh-my-zsh/custom}/plugins/zsh-autosuggestions" ] 
 then
@@ -58,6 +66,8 @@ else
 fi
 
 # Source .zshrc to apply changes immediately
-source ~/.zshrc
+cd $HOME
+source .zshrc
+cd -
 
 echo "Setup complete of zsh_plugins."
