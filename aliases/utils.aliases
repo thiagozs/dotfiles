@@ -1,0 +1,13 @@
+#Utils
+
+alias weather='curl -4 http://wttr.in'
+alias weatherSP='curl -4 http://wttr.in/Sao_Paulo'
+alias weatherNY='curl -4 http://wttr.in/New_York'
+alias weatherLA='curl -4 http://wttr.in/Los_Angeles'
+alias weatherLondon='curl -4 http://wttr.in/London'
+alias weatherParis='curl -4 http://wttr.in/Paris'
+alias weatherTokyo='curl -4 http://wttr.in/Tokyo'
+alias weatherBeijing='curl -4 http://wttr.in/Beijing'
+alias weatherSydney='curl -4 http://wttr.in/Sydney'
+alias weatherCasa='curl -4 http://wttr.in/Ararangua'
+alias moon='curl wttr.in/Moon'

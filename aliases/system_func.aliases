@@ -1,0 +1,73 @@
+# Old Ipconfig linux
+function ipconfig() {
+    for i in $(seq 1 100); do printf "-"; done
+    echo ""
+    nmcli dev show $1 | grep -E 'DEVICE|TYPE|HWADDR|MTU|STATE|CON|ADDRESS|GATEWAY|ROUTE|DNS|DOMAIN|^$' | awk '!NF{for(i=0; i<=100; i++) printf "-";}1'
+    for i in $(seq 1 100); do printf "-"; done
+    echo ""
+}
+
+# repeat last command until it succeeds
+# https://medium.com/@marko.luksa/bash-trick-repeat-last-command-until-success-750a61c43c8a
+function rpt() {
+    CMD=$(fc -ln | tail -2 | head -1)
+    echo "repeating until success: $CMD"
+    until $CMD; do
+        sleep 1
+    done
+}
+
+# PetSearch
+function pet-select() {
+    BUFFER=$(pet search --query "$LBUFFER")
+    CURSOR=$#BUFFER
+    zle redisplay
+}
+zle -N pet-select
+stty -ixon
+bindkey '^s' pet-select
+
+function prev() {
+    PREV=$(fc -lrn | head -n 1)
+    sh -c "pet new $(printf %q "$PREV")"
+}
+
+# Determine size of a file or total size of a directory
+function fs() {
+    if du -b /dev/null >/dev/null 2>&1; then
+        local arg=-sbh
+    else
+        local arg=-sh
+    fi
+
+    if [[ -n "$@" ]]; then
+        du $arg -- "$@"
+    else
+        du $arg .[^.]* *
+    fi
+}
+
+# Extract most know archives with one command
+function extract() {
+    if [ -f "$1" ]; then
+        case "$1" in
+        *.tar.bz2) tar xjf "$1" ;;
+        *.tar.gz) tar xzf "$1" ;;
+        *.bz2) bunzip2 "$1" ;;
+        *.rar) unrar e "$1" ;;
+        *.gz) gunzip "$1" ;;
+        *.lzma) unlzma "$1" ;;
+        *.tar) tar xf "$1" ;;
+        *.tbz2) tar xjf "$1" ;;
+        *.tgz) tar xzf "$1" ;;
+        *.xz) unxz "$1" ;;
+        *.zip) unzip "$1" ;;
+        *.Z) uncompress "$1" ;;
+        *.7z) 7z x "$1" ;;
+        exe) cabextract "$1" ;;
+        *) echo "'$1' cannot be extracted via extract()" ;;
+        esac
+    else
+        echo "'$1' is not a valid file"
+    fi
+}

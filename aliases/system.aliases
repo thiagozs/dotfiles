@@ -1,0 +1,82 @@
+
+# http://www.shellperson.net/using-sudo-with-an-alias/
+alias sudo='sudo '
+
+# clear screen
+alias c='clear'
+
+# Colorize the grep command output for ease of use (good for log files)
+alias grep='grep --color=auto'
+alias egrep='egrep --color=auto'
+alias fgrep='fgrep --color=auto'
+
+# Find a file from the current directory
+alias ff='find . -name '
+
+# mkdir
+# make necessary parent directory, and make it verbose to help avoid typos
+alias mkdir="mkdir -pv"
+# create and enter directory
+alias mkcd='foo(){ mkdir -p "$1"; cd "$1" }; foo '
+
+# show my ip
+alias myip='curl http://ipecho.net/plain; echo'
+
+
+# ls
+# colorize output
+# ls working colorful on all OS'es
+#linux
+if [[ `uname` == Linux ]]; then
+    export LS1='--color=always'
+#mac
+elif [[ `uname` == Darwin* ]]; then
+    export LS1='-G'
+#win/cygwin/other
+else
+    export LS1='--color=auto'
+fi
+export LS2='-hF --time-style=long-iso'
+
+# list files and directories in long format (-l), also hidden ones (-a)
+alias ls='ls $LS1 $LS2 -AB'
+# list files and directories in long format (-l), also hidden ones (-a) with human-readable sizes (-h)
+alias ll='ls -lha';
+#  listing of directories in the current directory
+alias ld='ls -al | grep ^d'
+
+# e.g."ps-grep java" will list processes that have java in description
+alias psg='ps aux | grep'
+# df -- display free disk space with human-readable" output
+alias dfh='df -h'
+
+#Grabs the disk usage in the current directory
+alias usage='du -ch 2> /dev/null |tail -1'
+
+#Gets the total disk usage on your machine
+alias totalusage='df -hl --total | grep total'
+
+#Shows the individual partition usages without the temporary memory values
+alias partusage='df -hlT --exclude-type=tmpfs --exclude-type=devtmpfs'
+
+#Gives you what is using the most space. Both directories and files. Varies on
+#current directory
+alias most='du -hsx * | sort -rh | head -10'
+
+# time and date
+alias now='date +"%T"'
+alias nowdate='date +"%d-%m-%Y"'
+
+# Stop after sending count ECHO_REQUEST packets
+alias ping='ping -c 5'
+# Do not wait interval 1 second, go fast
+alias fastping='ping -c 100 -s.2'
+
+# Use netstat command to quickly list all TCP/UDP port on the server
+alias ports='netstat -tulanp'
+
+# Show text file without comment (#) lines
+alias nocomment='grep -Ev '''^(#|$)''''
+
+# resume wget downloads
+alias wget='wget -c'

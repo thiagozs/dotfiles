@@ -1,0 +1,10 @@
+#Homebrew
+
+alias bup='brew update && brew upgrade && brew cleanup && brew doctor'
+alias bout='brew outdated'
+alias bin='brew install'
+alias brm='brew uninstall'
+alias bls='brew list'
+alias bsr='brew search'
+alias binf='brew info'
+alias bdr='brew doctor'

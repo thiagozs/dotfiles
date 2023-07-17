@@ -1,0 +1,17 @@
+
+function genqrcode() {
+    curl -s qrenco.de/"$1"
+}
+
+function randomHash() {
+    openssl rand -hex 32
+}
+
+function randomHash64() {
+    openssl rand -base64 32
+}
+
+function genpassword() {
+    local PASSWORD_LENGTH=12
+    cat /dev/urandom | tr -dc 'a-zA-Z0-9' | fold -w $PASSWORD_LENGTH | head -n 1
+}

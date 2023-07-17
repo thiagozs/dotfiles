@@ -1,0 +1,19 @@
+#Docker
+
+# Image
+alias dip='docker image prune'
+alias dils='docker image ls'
+alias dirm='docker image rm'
+
+# Container
+alias dcp='docker container prune'
+alias dcla='docker container ls -a'
+alias dci='docker container inspect'
+alias dcs='docker container stop'
+alias dcr='docker container rm'
+
+# stop all containers
+alias dcsa='docker container stop $(docker ps -a -q)'
+
+# remove all containers
+alias dcra='docker container rm $(docker ps -a -q)'
