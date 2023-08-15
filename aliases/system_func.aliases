@@ -23,9 +23,9 @@ function pet-select() {
     CURSOR=$#BUFFER
     zle redisplay
 }
-zle -N pet-select
-stty -ixon
-bindkey '^s' pet-select
+# zle -N pet-select
+# stty -ixon
+# bindkey '^s' pet-select
 
 function prev() {
     PREV=$(fc -lrn | head -n 1)
@@ -71,3 +71,38 @@ function extract() {
         echo "'$1' is not a valid file"
     fi
 }
+
+
+function create_symlink() {
+    local src=$1
+    local dst=$2
+
+    if [ -e "$dst" ]; then
+        echo "Cannot create symlink: $dst already exists."
+        return 1
+    fi
+
+    if [ ! -e "$src" ]; then
+        echo "Cannot create symlink: $src does not exist."
+        return 1
+    fi
+
+    ln -s "$src" "$dst"
+    echo "Symlink created: $dst -> $src"
+}
+
+# This function will list all functions in the shell scripts in the given directory
+function list_functions() {
+    # get a root folder
+    root_dir=$(git rev-parse --show-toplevel)
+
+    # Directory containing your scripts
+    script_dir="${root_dir}/aliases"
+
+    for file in "${script_dir}"/*.aliases; do
+        echo "Functions from $(basename "${file}"):"
+        grep -Eo 'function [a-zA-Z_][a-zA-Z_0-9]*' "${file}" | cut -d' ' -f2
+        echo "-------------------------"
+    done
+}
+

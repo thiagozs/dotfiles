@@ -30,4 +30,4 @@ alias cpuinfo='lscpu'
 alias gpumeminfo='grep -i --color memory /var/log/Xorg.0.log'
 
 # top is atop, just like vi is vim
-alias top='atop'
+alias top='htop'

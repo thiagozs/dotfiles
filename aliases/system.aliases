@@ -1,4 +1,3 @@
-
 # http://www.shellperson.net/using-sudo-with-an-alias/
 alias sudo='sudo '
 
@@ -22,25 +21,21 @@ alias mkcd='foo(){ mkdir -p "$1"; cd "$1" }; foo '
 # show my ip
 alias myip='curl http://ipecho.net/plain; echo'
 
-
 # ls
 # colorize output
 # ls working colorful on all OS'es
 #linux
 if [[ `uname` == Linux ]]; then
-    export LS1='--color=always'
+    alias ls='ls --color=auto -hF --time-style=long-iso -AB'
 #mac
 elif [[ `uname` == Darwin* ]]; then
-    export LS1='-G'
+    alias ls='ls -G -hF -AB'
 #win/cygwin/other
 else
-    export LS1='--color=auto'
+    alias ls='ls --color=auto -hF -AB'
 fi
-export LS2='-hF --time-style=long-iso'
 
 # list files and directories in long format (-l), also hidden ones (-a)
-alias ls='ls $LS1 $LS2 -AB'
-# list files and directories in long format (-l), also hidden ones (-a) with human-readable sizes (-h)
 alias ll='ls -lha';
 #  listing of directories in the current directory
 alias ld='ls -al | grep ^d'
@@ -76,7 +71,10 @@ alias fastping='ping -c 100 -s.2'
 alias ports='netstat -tulanp'
 
 # Show text file without comment (#) lines
-alias nocomment='grep -Ev '''^(#|$)''''
+alias nocomment="grep -v '#' "
 
 # resume wget downloads
 alias wget='wget -c'
+
+# Create an alias to display the functions
+alias show_functions='noglob list_functions'
