@@ -1,3 +1,5 @@
 # The path are configure on the fly by the script
 # Do not change here BEFORE install, after you can change it
 
+export PATH=$PATH:/home/thiagozs/workspace/dotfiles
+export DOTFILES_PATH=/home/thiagozs/workspace/dotfiles
