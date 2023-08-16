@@ -93,11 +93,10 @@ function create_symlink() {
 
 # This function will list all functions in the shell scripts in the given directory
 function list_functions() {
-    # get a root folder
-    root_dir=$(git rev-parse --show-toplevel)
+    
 
     # Directory containing your scripts
-    script_dir="${root_dir}/aliases"
+    script_dir="$DOTFILES_PATH/aliases"
 
     for file in "${script_dir}"/*.aliases; do
         echo "Functions from $(basename "${file}"):"

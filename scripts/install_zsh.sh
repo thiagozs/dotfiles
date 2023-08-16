@@ -21,7 +21,4 @@ else
     echo "Oh-My-Zsh is already installed."
 fi
 
-# Source .zshrc to apply changes immediately
-source ~/.zshrc
-
 echo "Setup complete of zsh."

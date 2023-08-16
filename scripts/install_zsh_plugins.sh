@@ -65,9 +65,4 @@ else
     echo "Spaceship theme has been set in .zshrc."
 fi
 
-# Source .zshrc to apply changes immediately
-cd $HOME
-source .zshrc
-cd -
-
 echo "Setup complete of zsh_plugins."

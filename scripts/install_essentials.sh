@@ -80,7 +80,6 @@ else
     echo "Docker Compose is already installed."
 fi
 
-#https://desktop.docker.com/linux/main/amd64/docker-desktop-4.22.0-amd64.deb
 # Check if Docker Desktop is not installed
 if ! dpkg -l | grep -q docker-desktop; then
 

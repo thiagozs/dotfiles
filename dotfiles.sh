@@ -15,6 +15,3 @@ scripts/install_zsh_plugins.sh
 
 # Register the functions helpers and paths and aliases
 tools/register_help_sources.sh
-
-# Register the dotfiles paths
-tools/register_help_dotfiles.sh

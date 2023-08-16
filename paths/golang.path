@@ -1,4 +1,11 @@
-#Golang
+# Golang setup goenv
+# https://dev-yakuza.posstree.com/en/golang/goenv/
+
+export GOROOT="$(brew --prefix golang)/libexec"
 export GOENV_ROOT="$HOME/.goenv"
-export PATH="$PATH:$GOENV_ROOT/shims"
+export PATH="$GOENV_ROOT/bin:$PATH"
+export PATH="$GOENV_ROOT/shims:$PATH"
 eval "$(goenv init -)"
+export PATH="$GOROOT/bin:$PATH"
+export PATH="$PATH:$GOPATH/bin"
+alias go=~/.goenv/shims/go
