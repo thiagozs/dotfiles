@@ -3,8 +3,9 @@
 # get a root folder
 root_dir=$(git rev-parse --show-toplevel)
 
-# Directory containing your scripts
-script_dir="${root_dir}/paths"
+# Ensure the .dotfiles directory exists
+mkdir -p $HOME/.dotfiles/paths
+mkdir -p $HOME/.dotfiles/aliases
 
 # Function to add source line to .zshrc if it doesn't exist
 function add_source_if_not_exists() {
@@ -33,13 +34,24 @@ function add_source_if_not_exists() {
     fi
 }
 
-echo "Registering paths from folder: ${script_dir}"
+script_dir="${root_dir}/paths"
+echo "Registering functions from folder: ${script_dir}"
 
-# Register the functions from the scripts in the directory
 for file in "${script_dir}"/*.path; do
+    # Copy the file to $HOME/.dotfiles/paths
+    cp "$file" "$HOME/.dotfiles/paths/"
     echo "Registering path from file: ${file}"
-    add_source_if_not_exists "${file}"
+    add_source_if_not_exists "$HOME/.dotfiles/paths/$(basename $file)"
 done
 
-# Print a message to let the user know the setup is complete
+script_dir="${root_dir}/aliases"
+echo "Registering functions from folder: ${script_dir}"
+
+for file in "${script_dir}"/*.aliases; do
+    # Copy the file to $HOME/.dotfiles/aliases
+    cp "$file" "$HOME/.dotfiles/aliases/"
+    echo "Registering functions from file: ${file}"
+    add_source_if_not_exists "$HOME/.dotfiles/aliases/$(basename $file)"
+done
+
 echo "Setup complete."

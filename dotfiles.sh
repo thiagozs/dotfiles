@@ -13,11 +13,8 @@ scripts/install_zsh.sh
 # Check if zsh plugins are installed, and if not, install them
 scripts/install_zsh_plugins.sh
 
-# Register the functions helpers and aliases
-tools/register_help_funcs.sh
-
-# Register the paths for the scripts and apps
-tools/register_help_paths.sh
+# Register the functions helpers and paths and aliases
+tools/register_help_sources.sh
 
 # Register the dotfiles paths
 tools/register_help_dotfiles.sh
