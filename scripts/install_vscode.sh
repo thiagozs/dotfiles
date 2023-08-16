@@ -14,8 +14,8 @@ else
     echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/packages.microsoft.gpg] https://packages.microsoft.com/repos/vscode stable main" | sudo tee /etc/apt/sources.list.d/vscode.list
 
     # Update package lists and install Visual Studio Code
-    sudo apt update
-    sudo apt install code
+    sudo apt update -y 
+    sudo apt install -y code
 
     echo "Visual Studio Code has been installed."
 fi

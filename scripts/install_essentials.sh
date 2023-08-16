@@ -28,6 +28,7 @@ if ! command -v brew &> /dev/null
 then
     echo "Homebrew is not installed. Installing..."
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
+    export PATH="$PATH:/home/linuxbrew/.linuxbrew/bin"
 else
     echo "Homebrew is already installed."
 fi
@@ -102,10 +103,10 @@ if ! dpkg -l | grep -q docker-desktop; then
     echo "Installing Docker Desktop..."
 
     # Update the system
-    sudo apt-get update
+    sudo apt-get update -y
 
     # Install the downloaded .deb package
-    sudo apt-get install ./docker-desktop-4.22.0-amd64.deb
+    sudo apt-get install -y ./docker-desktop-4.22.0-amd64.deb
 
     # Launch Docker Desktop
     echo "Starting Docker Desktop..."
