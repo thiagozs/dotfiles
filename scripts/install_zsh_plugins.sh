@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Check if ZSH_CUSTOM is set
+# Ensure ZSH_CUSTOM points to the Oh-My-Zsh custom directory
 if [ -z "$ZSH_CUSTOM" ]; then
-    echo "ZSH_CUSTOM is not set. Aborting..."
-    exit 1
+    ZSH_CUSTOM="$HOME/.oh-my-zsh/custom"
+    echo "ZSH_CUSTOM was not set. Defaulting to $ZSH_CUSTOM."
 else
     echo "ZSH_CUSTOM is set to $ZSH_CUSTOM."
 fi
