@@ -31,6 +31,25 @@ setup() {
     [[ "${output}" =~ "Executando componente opcional 'cli-utilities'" ]]
 }
 
+@test "dotfiles.sh aceita componente ai-cli" {
+    run ./dotfiles.sh --dry-run --username testuser --with ai-cli
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Executando componente opcional 'ai-cli'" ]]
+}
+
+@test "dotfiles.sh aceita atalho --with-ai-cli" {
+    run ./dotfiles.sh --dry-run --username testuser --with-ai-cli
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Executando componente opcional 'ai-cli'" ]]
+}
+
+@test "dotfiles.sh --only-ai-cli executa apenas CLIs de IA" {
+    run ./dotfiles.sh --dry-run --username testuser --only-ai-cli
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Pulando componentes essenciais" ]]
+    [[ "${output}" =~ "Executando componente opcional 'ai-cli'" ]]
+}
+
 @test "dotfiles.sh aceita componente language-managers" {
     run ./dotfiles.sh --dry-run --username testuser --with language-managers
     [ "$status" -eq 0 ]

@@ -30,8 +30,9 @@ Os componentes extras são descritos de forma declarativa em `config/components.
 - `vscode` - instala Visual Studio Code a partir do repositório oficial.
 - `docker-cli` - instala o Docker CLI e adiciona o usuário ao grupo `docker`.
 - `docker-compose` - instala o plugin Docker Compose v2.
-- `cli-utilities` - adiciona ferramentas produtivas de terminal (fzf, bat, ripgrep, exa, zoxide, monitores, tldr, Gemini CLI).
-- `language-managers` - instala `nvm` (Node.js) e `gvm` (Go).
+- `cli-utilities` - adiciona ferramentas produtivas de terminal (fzf, bat, ripgrep, exa, zoxide, atuin, monitores, tldr).
+- `ai-cli` - instala CLIs de IA (Claude, OpenAI e Gemini).
+- `language-managers` - instala gerenciadores de versões para Node.js e Go (`nvm`, `nodenv`, `gvm`, `goenv`).
 
 Exemplo:
 
@@ -43,6 +44,8 @@ Exemplo:
 
 - `--skip-essentials`, `--skip-brew`, `--skip-zsh`, `--skip-zsh-plugins`, `--skip-register` permitem pular etapas específicas.
 - `--skip-docker`, `--skip-docker-compose`, `--skip-sudoers` controlam subtarefas de `install_essentials.sh`.
+- `--with-ai-cli` adiciona o componente de CLIs de IA sem precisar repetir `--with ai-cli`.
+- `--only-ai-cli` pula as etapas padrão e executa apenas o componente de CLIs de IA.
 - `--dry-run` mostra os comandos sem executá-los.
 
 Veja `./dotfiles.sh --help` para a lista completa de parâmetros.
@@ -58,8 +61,9 @@ Veja `./dotfiles.sh --help` para a lista completa de parâmetros.
 - `scripts/install_brewpackages.sh` - lê `tools/brew_packages.txt` e garante a instalação via Homebrew.
 - `scripts/install_zsh.sh` e `scripts/install_zsh_plugins.sh` - cuidam de zsh, Oh My Zsh, plugins e tema.
 - `scripts/install_docker_cli.sh` e `scripts/install_docker_compose.sh` - instaladores dedicados para Docker CLI/Compose (reutilizados no componente `docker-cli`/`docker-compose`).
-- `scripts/install_fzf.sh`, `scripts/install_bat.sh`, `scripts/install_ripgrep.sh`, `scripts/install_exa.sh`, `scripts/install_zoxide.sh`, `scripts/install_monitoring_tools.sh`, `scripts/install_tldr.sh`, `scripts/install_gemini_cli.sh` - utilitários de terminal opcionais.
-- `scripts/install_nvm.sh` e `scripts/install_gvm.sh` - gerenciam as instalações do `nvm` e `gvm`.
+- `scripts/install_fzf.sh`, `scripts/install_bat.sh`, `scripts/install_ripgrep.sh`, `scripts/install_exa.sh`, `scripts/install_zoxide.sh`, `scripts/install_atuin.sh`, `scripts/install_monitoring_tools.sh`, `scripts/install_tldr.sh` - utilitários de terminal opcionais.
+- `scripts/install_claude_cli.sh`, `scripts/install_codex_cli.sh`, `scripts/install_gemini_cli.sh` - CLIs de IA opcionais.
+- `scripts/install_nvm.sh`, `scripts/install_nodenv.sh`, `scripts/install_gvm.sh`, `scripts/install_goenv.sh` - gerenciam as instalações de `nvm`, `nodenv`, `gvm` e `goenv`.
 - `tools/register_help_sources.sh` - cria symlinks e garante o `source` no `.zshrc`.
 
 Cada script utiliza helpers compartilhados em `scripts/lib/common.sh`, garantindo logs consistentes e idempotência.

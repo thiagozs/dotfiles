@@ -81,10 +81,22 @@ docker_ensure_legacy_symlink() {
         return
     fi
 
-    if docker compose version >/dev/null 2>&1 && [[ ! -e /usr/local/bin/docker-compose ]]; then
+    local target="/usr/local/bin/docker-compose"
+    local target_dir="/usr/local/bin"
+
+    if docker compose version >/dev/null 2>&1 && [[ ! -e "$target" ]]; then
         log_info "Criando alias docker-compose -> docker compose."
-        echo '#!/usr/bin/env bash' | sudo tee /usr/local/bin/docker-compose >/dev/null
-        echo 'exec docker compose "$@"' | sudo tee -a /usr/local/bin/docker-compose >/dev/null
-        sudo chmod +x /usr/local/bin/docker-compose
+
+        sudo install -d -m 0755 "$target_dir"
+
+        local tmp
+        tmp="$(mktemp)"
+        {
+            echo '#!/usr/bin/env bash'
+            echo 'exec docker compose "$@"'
+        } >"$tmp"
+
+        sudo install -m 0755 "$tmp" "$target"
+        rm -f "$tmp"
     fi
 }

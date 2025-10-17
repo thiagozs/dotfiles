@@ -83,7 +83,8 @@ main() {
     fi
 
     if [[ $installed -ne 0 ]]; then
-        fail "Não foi possível instalar automaticamente o Gemini CLI. Consulte a documentação oficial do Google Gemini."
+        log_warn "Não foi possível instalar automaticamente o Gemini CLI. Consulte https://ai.google.dev/gemini-api/docs para instruções atualizadas ou instale manualmente assim que tiver conectividade."
+        return 0
     fi
 
     if already_installed; then

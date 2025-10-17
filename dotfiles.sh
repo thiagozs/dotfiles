@@ -24,6 +24,8 @@ SKIP_BREW=false
 SKIP_ZSH=false
 SKIP_ZSH_PLUGINS=false
 SKIP_REGISTER=false
+INCLUDE_AI_CLI=false
+ONLY_AI_CLI=false
 
 show_help() {
     cat <<'EOF'
@@ -37,6 +39,8 @@ Opções principais:
   --skip-zsh                Não executa scripts/install_zsh.sh
   --skip-zsh-plugins        Não executa scripts/install_zsh_plugins.sh
   --skip-register           Não executa tools/register_help_sources.sh
+  --with-ai-cli             Atalho para instalar o componente opcional de CLIs de IA
+  --only-ai-cli             Apenas instala os CLIs de IA (ignora demais componentes)
   --skip-docker             Repassa --skip-docker para install_essentials.sh
   --skip-docker-compose     Repassa --skip-docker-compose para install_essentials.sh
   --skip-sudoers            Repassa --skip-sudoers para install_essentials.sh
@@ -129,6 +133,13 @@ while [[ $# -gt 0 ]]; do
         --skip-register)
             SKIP_REGISTER=true
             ;;
+        --with-ai-cli)
+            INCLUDE_AI_CLI=true
+            ;;
+        --only-ai-cli)
+            INCLUDE_AI_CLI=true
+            ONLY_AI_CLI=true
+            ;;
         --skip-docker|--skip-docker-compose|--skip-sudoers)
             EXTRA_ESSENTIAL_ARGS+=("$1")
             ;;
@@ -145,6 +156,20 @@ while [[ $# -gt 0 ]]; do
     esac
     shift || true
 done
+
+if [[ "$ONLY_AI_CLI" == true ]]; then
+    if ((${#OPTIONALS[@]} > 0)); then
+        log_warn "--only-ai-cli ignora componentes adicionais informados via --with."
+    fi
+    SKIP_ESSENTIALS=true
+    SKIP_BREW=true
+    SKIP_ZSH=true
+    SKIP_ZSH_PLUGINS=true
+    SKIP_REGISTER=true
+    OPTIONALS=("ai-cli")
+elif [[ "$INCLUDE_AI_CLI" == true ]]; then
+    OPTIONALS+=("ai-cli")
+fi
 
 [[ -n "$USERNAME" ]] || fail "Informe um usuário via --username."
 
@@ -193,11 +218,17 @@ if ((${#OPTIONALS[@]} > 0)); then
 fi
 
 if ! $SKIP_ESSENTIALS; then
+    cmd_args=(
+        "${ROOT_DIR}/scripts/install_essentials.sh"
+        --username "$USERNAME"
+    )
+    if ((${#EXTRA_ESSENTIAL_ARGS[@]} > 0)); then
+        cmd_args+=("${EXTRA_ESSENTIAL_ARGS[@]}")
+    fi
+
     run_step_command \
         "Instalando componentes essenciais" \
-        "${ROOT_DIR}/scripts/install_essentials.sh" \
-        --username "$USERNAME" \
-        "${EXTRA_ESSENTIAL_ARGS[@]}"
+        "${cmd_args[@]}"
 else
     log_info "Pulando componentes essenciais (--skip-essentials)."
 fi
