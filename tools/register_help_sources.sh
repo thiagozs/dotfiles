@@ -29,8 +29,23 @@ resolve_path() {
     if command_exists realpath; then
         realpath "$path"
     else
-        ensure_command python3 "instale python3"
-        python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$path"
+        if command_exists readlink; then
+            readlink -f "$path"
+            return
+        fi
+
+        local dir base
+        dir="$(dirname "$path")"
+        base="$(basename "$path")"
+
+        if [[ -d "$dir" ]]; then
+            (
+                cd "$dir" >/dev/null || exit 1
+                printf "%s/%s\n" "$(pwd -P)" "$base"
+            )
+        else
+            fail "Não foi possível resolver caminho absoluto. Instale coreutils (realpath/readlink)."
+        fi
     fi
 }
 

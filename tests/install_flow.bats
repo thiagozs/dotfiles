@@ -18,6 +18,25 @@ setup() {
     [[ "${output}" =~ "Executando componente opcional 'slack'" ]]
 }
 
+@test "dotfiles.sh aceita componentes docker opcionais" {
+    run ./dotfiles.sh --dry-run --username testuser --with docker-cli,docker-compose
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Executando componente opcional 'docker-cli'" ]]
+    [[ "${output}" =~ "Executando componente opcional 'docker-compose'" ]]
+}
+
+@test "dotfiles.sh aceita componente cli-utilities" {
+    run ./dotfiles.sh --dry-run --username testuser --with cli-utilities
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Executando componente opcional 'cli-utilities'" ]]
+}
+
+@test "dotfiles.sh aceita componente language-managers" {
+    run ./dotfiles.sh --dry-run --username testuser --with language-managers
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "Executando componente opcional 'language-managers'" ]]
+}
+
 @test "dotfiles.sh rejeita componente inválido" {
     run ./dotfiles.sh --dry-run --username testuser --with foo
     [ "$status" -eq 0 ]

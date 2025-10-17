@@ -21,7 +21,7 @@ shift
 # Sync each directory with the destination directory
 for dir in "$@"; do
     # Get the base name of the directory
-    base_dir=$(basename $dir)
+    base_dir=$(basename "$dir")
 
     # Check if the directory exists
     if [ ! -d "$dir" ]; then

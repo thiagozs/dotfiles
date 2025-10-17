@@ -7,11 +7,12 @@ set -o nounset
 SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${SCRIPT_DIR}/lib/common.sh"
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/docker.sh"
 
 USERNAME="${USER}"
 ADD_TO_SUDOERS=true
 INSTALL_DOCKER=true
-INSTALL_DOCKER_DESKTOP=false
 INSTALL_DOCKER_COMPOSE=true
 
 APT_UPDATED=0
@@ -25,7 +26,6 @@ Opções:
   --skip-sudoers            Não alterar a configuração de sudo
   --skip-docker             Não instalar Docker Engine
   --skip-docker-compose     Não instalar Docker Compose (plugin)
-  --with-docker-desktop     Instala Docker Desktop (somente Linux)
   -h, --help                Exibe esta ajuda
 EOF
 }
@@ -44,9 +44,6 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-docker-compose)
             INSTALL_DOCKER_COMPOSE=false
-            ;;
-        --with-docker-desktop)
-            INSTALL_DOCKER_DESKTOP=true
             ;;
         -h|--help)
             show_help
@@ -118,6 +115,7 @@ install_homebrew() {
         local brew_profile="/home/linuxbrew/.linuxbrew/bin/brew"
         if [[ -x "$brew_profile" ]]; then
             eval "$("$brew_profile" shellenv)"
+            # shellcheck disable=SC2016 # queremos persistir o comando literal com $(...)
             upsert_config_line 'eval "$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)"' "$HOME/.profile"
         fi
     fi
@@ -129,35 +127,18 @@ install_docker_engine() {
         return
     fi
 
-    if command_exists docker; then
-        log_info "Docker já instalado."
+    if docker_cli_installed; then
+        log_info "Docker CLI já instalado."
         return
     fi
 
-    is_linux || fail "Instalação do Docker Engine automatizada suportada apenas em Linux."
+    docker_require_linux
+    docker_install_prereqs APT_UPDATED
+    docker_setup_repository APT_UPDATED
 
-    update_apt_cache
-    sudo apt-get install -y ca-certificates curl gnupg lsb-release
-
-    local keyring="/etc/apt/keyrings/docker.gpg"
-    if [[ ! -f "$keyring" ]]; then
-        log_info "Registrando chave GPG do Docker."
-        sudo install -m 0755 -d /etc/apt/keyrings
-        curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --batch --yes --dearmor -o "$keyring"
-        sudo chmod a+r "$keyring"
-    fi
-
-    local repo="deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
-    if ! grep -Rqs "download.docker.com/linux/ubuntu" /etc/apt/sources.list.d /etc/apt/sources.list; then
-        echo "$repo" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
-    fi
-
-    update_apt_cache
+    log_info "Instalando Docker CLI e componentes básicos."
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin
-
-    if id "$USERNAME" &>/dev/null; then
-        sudo usermod -aG docker "$USERNAME"
-    fi
+    docker_add_user_to_group "$USERNAME"
 }
 
 install_docker_compose() {
@@ -166,52 +147,21 @@ install_docker_compose() {
         return
     fi
 
-    if command_exists docker-compose || docker compose version >/dev/null 2>&1; then
-        log_info "Docker Compose já instalado."
+    if docker_compose_plugin_installed; then
+        log_info "Docker Compose já está disponível."
         return
     fi
 
-    update_apt_cache
+    docker_require_linux
+    docker_install_prereqs APT_UPDATED
+    docker_setup_repository APT_UPDATED
+
+    log_info "Instalando plugin Docker Compose."
     sudo apt-get install -y docker-compose-plugin
 }
 
-install_docker_desktop() {
-    if ! $INSTALL_DOCKER_DESKTOP; then
-        log_info "Docker Desktop não solicitado."
-        return
-    fi
-
-    is_linux || fail "Docker Desktop para Linux somente."
-
-    if dpkg -l | grep -q docker-desktop; then
-        log_info "Docker Desktop já instalado."
-        return
-    fi
-
-    update_apt_cache
-    sudo apt-get install -y gnome-terminal wget
-
-    local package="docker-desktop-latest.deb"
-    log_info "Baixando Docker Desktop..."
-    wget -q https://desktop.docker.com/linux/main/amd64/docker-desktop-4.27.2-amd64.deb -O "$package"
-
-    log_info "Instalando Docker Desktop..."
-    sudo apt-get install -y "./$package"
-
-    rm -f "$package"
-}
-
 install_docker_compose_legacy_symlink() {
-    if command_exists docker-compose || ! command_exists docker; then
-        return
-    fi
-
-    if docker compose version >/dev/null 2>&1 && [[ ! -e /usr/local/bin/docker-compose ]]; then
-        log_info "Criando alias docker-compose -> docker compose."
-        echo '#!/usr/bin/env bash' | sudo tee /usr/local/bin/docker-compose >/dev/null
-        echo 'exec docker compose "$@"' | sudo tee -a /usr/local/bin/docker-compose >/dev/null
-        sudo chmod +x /usr/local/bin/docker-compose
-    fi
+    docker_ensure_legacy_symlink
 }
 
 ensure_user_exists
@@ -219,7 +169,6 @@ configure_sudoers
 install_homebrew
 install_docker_engine
 install_docker_compose
-install_docker_desktop
 install_docker_compose_legacy_symlink
 
 log_info "Configuração essencial concluída."

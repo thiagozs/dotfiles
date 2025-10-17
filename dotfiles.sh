@@ -8,7 +8,7 @@ ROOT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
 # shellcheck disable=SC1091
 source "${ROOT_DIR}/scripts/lib/common.sh"
 
-COMPONENT_MANIFEST="${ROOT_DIR}/config/components.json"
+COMPONENT_MANIFEST="${ROOT_DIR}/config/components.sh"
 declare -A COMPONENT_DESCRIPTIONS=()
 declare -A COMPONENT_SCRIPTS=()
 declare -A COMPONENT_FLAGS=()
@@ -31,7 +31,7 @@ Uso: ./dotfiles.sh [opções]
 
 Opções principais:
   --username NOME           Usuário alvo para permissões sudo e ajustes (default: usuário atual)
-  --with lista              Componentes opcionais separados por vírgula (ex.: fonts,slack,vscode,docker-desktop)
+  --with lista              Componentes opcionais separados por vírgula (ex.: fonts,slack,vscode,docker-cli)
   --skip-essentials         Não executa scripts/install_essentials.sh
   --skip-brew               Não executa scripts/install_brewpackages.sh
   --skip-zsh                Não executa scripts/install_zsh.sh
@@ -40,12 +40,11 @@ Opções principais:
   --skip-docker             Repassa --skip-docker para install_essentials.sh
   --skip-docker-compose     Repassa --skip-docker-compose para install_essentials.sh
   --skip-sudoers            Repassa --skip-sudoers para install_essentials.sh
-  --with-docker-desktop     Repassa --with-docker-desktop para install_essentials.sh
   --dry-run                 Apenas exibe os comandos que seriam executados
   -h, --help                Mostra esta ajuda
 
 Exemplo:
-  ./dotfiles.sh --username thiagozs --with fonts,slack --with-docker-desktop
+  ./dotfiles.sh --username thiagozs --with fonts,slack,docker-cli
 EOF
 
     if ((${#COMPONENT_ORDER[@]} > 0)); then
@@ -74,43 +73,33 @@ load_component_manifest() {
         return
     fi
 
-    ensure_command python3 "instale python3 (sudo apt install -y python3)"
+    # shellcheck disable=SC1090
+    source "$COMPONENT_MANIFEST"
 
-    local kind name value
-    while IFS=$'\t' read -r kind name value; do
-        case "$kind" in
-            ENTRY)
-                COMPONENT_DESCRIPTIONS["$name"]="$value"
-                COMPONENT_ORDER+=("$name")
-                ;;
-            SCRIPT)
-                if [[ -n "${COMPONENT_SCRIPTS[$name]+x}" ]]; then
-                    COMPONENT_SCRIPTS["$name"]+=$'\n'"$value"
-                else
-                    COMPONENT_SCRIPTS["$name"]="$value"
-                fi
-                ;;
-            FLAG)
-                if [[ -n "${COMPONENT_FLAGS[$name]+x}" ]]; then
-                    COMPONENT_FLAGS["$name"]+=$'\n'"$value"
-                else
-                    COMPONENT_FLAGS["$name"]="$value"
-                fi
-                ;;
-        esac
-    done < <(python3 - "$COMPONENT_MANIFEST" <<'PY'
-import json, sys, pathlib
-path = pathlib.Path(sys.argv[1])
-data = json.loads(path.read_text())
-for name, attrs in data.items():
-    desc = attrs.get("description", "")
-    print("ENTRY", name, desc, sep="\t")
-    for script in attrs.get("scripts") or []:
-        print("SCRIPT", name, script, sep="\t")
-    for flag in attrs.get("forward_flags") or []:
-        print("FLAG", name, flag, sep="\t")
-PY
-    )
+    if declare -p DOTFILES_COMPONENT_DESCRIPTIONS >/dev/null 2>&1; then
+        COMPONENT_DESCRIPTIONS=()
+        for name in "${!DOTFILES_COMPONENT_DESCRIPTIONS[@]}"; do
+            COMPONENT_DESCRIPTIONS["$name"]="${DOTFILES_COMPONENT_DESCRIPTIONS[$name]}"
+        done
+    fi
+
+    if declare -p DOTFILES_COMPONENT_SCRIPTS >/dev/null 2>&1; then
+        COMPONENT_SCRIPTS=()
+        for name in "${!DOTFILES_COMPONENT_SCRIPTS[@]}"; do
+            COMPONENT_SCRIPTS["$name"]="${DOTFILES_COMPONENT_SCRIPTS[$name]}"
+        done
+    fi
+
+    if declare -p DOTFILES_COMPONENT_FLAGS >/dev/null 2>&1; then
+        COMPONENT_FLAGS=()
+        for name in "${!DOTFILES_COMPONENT_FLAGS[@]}"; do
+            COMPONENT_FLAGS["$name"]="${DOTFILES_COMPONENT_FLAGS[$name]}"
+        done
+    fi
+
+    if declare -p DOTFILES_COMPONENT_ORDER >/dev/null 2>&1; then
+        COMPONENT_ORDER=("${DOTFILES_COMPONENT_ORDER[@]}")
+    fi
 }
 
 load_component_manifest
@@ -140,7 +129,7 @@ while [[ $# -gt 0 ]]; do
         --skip-register)
             SKIP_REGISTER=true
             ;;
-        --skip-docker|--skip-docker-compose|--skip-sudoers|--with-docker-desktop)
+        --skip-docker|--skip-docker-compose|--skip-sudoers)
             EXTRA_ESSENTIAL_ARGS+=("$1")
             ;;
         --dry-run)
@@ -189,7 +178,7 @@ run_step_command() {
         return 0
     fi
 
-	    "${cmd[@]}"
+    "${cmd[@]}"
 }
 
 if ((${#OPTIONALS[@]} > 0)); then
@@ -198,7 +187,7 @@ if ((${#OPTIONALS[@]} > 0)); then
             while IFS= read -r flag; do
                 [[ -n "$flag" ]] || continue
                 EXTRA_ESSENTIAL_ARGS+=("$flag")
-            done <<<"${COMPONENT_FLAGS[$component]}"
+            done <<<"$(printf '%s\n' "${COMPONENT_FLAGS[$component]}")"
         fi
     done
 fi
@@ -255,7 +244,7 @@ for component in "${OPTIONALS[@]}"; do
         run_step_command \
             "Executando componente opcional '${component}' (${COMPONENT_DESCRIPTIONS[$component]})" \
             "${ROOT_DIR}/${script_path}"
-    done <<<"${COMPONENT_SCRIPTS[$component]}"
+    done <<<"$(printf '%s\n' "${COMPONENT_SCRIPTS[$component]}")"
 done
 
 log_info "Fluxo de configuração finalizado."

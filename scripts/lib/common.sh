@@ -62,6 +62,46 @@ command_exists() {
     command -v "$1" >/dev/null 2>&1
 }
 
+DOTFILES_APT_UPDATED=0
+
+apt_update_once() {
+    if ! is_linux; then
+        return 1
+    fi
+
+    if [[ "${DOTFILES_APT_UPDATED:-0}" -eq 1 ]]; then
+        return 0
+    fi
+
+    log_info "Atualizando cache do apt..."
+    sudo apt-get update -y
+    DOTFILES_APT_UPDATED=1
+}
+
+apt_install_packages() {
+    if ! is_linux; then
+        fail "Instalação via apt suportada apenas em sistemas Linux."
+    fi
+
+    apt_update_once
+    sudo apt-get install -y "$@"
+}
+
+brew_install_package() {
+    local package="$1"
+
+    if ! command_exists brew; then
+        fail "Homebrew não encontrado para instalar ${package}."
+    fi
+
+    if brew list --formula | grep -Fxq "$package"; then
+        log_info "${package} já instalado via Homebrew."
+        return
+    fi
+
+    brew install "$package"
+}
+
 upsert_config_line() {
     # Garante que uma linha exista em um arquivo. Se não existir, adiciona ao final.
     local line="$1"
