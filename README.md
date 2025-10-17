@@ -143,4 +143,4 @@ Ao sair do container (`exit`), tudo é descartado automaticamente graças ao `--
 
 Seguimos [Semantic Versioning](https://semver.org/). Consulte as [tags do repositório](https://github.com/thiagozs/dotfiles/tags) para versões disponíveis e veja a [LICENSE](LICENSE) para detalhes legais.
 
-**2023-2025**, thiagozs
+**2023-2025**, Thiago Zilli Sarmento
