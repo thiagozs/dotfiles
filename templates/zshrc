@@ -1,0 +1,27 @@
+# Dotfiles zshrc template
+export ZSH="$HOME/.oh-my-zsh"
+
+ZSH_THEME="spaceship"
+
+plugins=(
+  git
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+
+source "$ZSH/oh-my-zsh.sh"
+
+# Carrega funções/aliases registrados pelo gestor de dotfiles.
+if [ -d "$HOME/.dotfiles/paths" ]; then
+  for path_file in "$HOME/.dotfiles/paths/"*.path; do
+    [ -f "$path_file" ] && source "$path_file"
+  done
+fi
+
+if [ -d "$HOME/.dotfiles/aliases" ]; then
+  for alias_file in "$HOME/.dotfiles/aliases/"*.aliases; do
+    [ -f "$alias_file" ] && source "$alias_file"
+  done
+fi
+
+# Personalizações adicionais podem ser adicionadas abaixo.

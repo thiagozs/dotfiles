@@ -1,0 +1,27 @@
+{
+  "fonts": {
+    "description": "Instala as fontes Font Awesome e Fira Code",
+    "scripts": [
+      "scripts/install_fontawesome.sh",
+      "scripts/install_fontfiracode.sh"
+    ]
+  },
+  "slack": {
+    "description": "Instala o cliente Slack Desktop",
+    "scripts": [
+      "scripts/install_slackclient.sh"
+    ]
+  },
+  "vscode": {
+    "description": "Instala o Visual Studio Code a partir do repositório oficial",
+    "scripts": [
+      "scripts/install_vscode.sh"
+    ]
+  },
+  "docker-desktop": {
+    "description": "Instala Docker Desktop para Linux (requer sessão gráfica)",
+    "forward_flags": [
+      "--with-docker-desktop"
+    ]
+  }
+}

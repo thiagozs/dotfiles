@@ -1,22 +1,38 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-FONT_DIR="$HOME/.fonts"
-FONT_AWESOME_DIR="$FONT_DIR/FontAwesome"
+set -o errexit
+set -o pipefail
+set -o nounset
 
-# Check if Font Awesome is installed
-if [ -d "$FONT_AWESOME_DIR" ]; then
-    echo "Font Awesome is already installed."
+SCRIPT_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+# shellcheck disable=SC1091
+source "${SCRIPT_DIR}/lib/common.sh"
+
+FONT_DIR="${HOME}/.fonts"
+REPO_DIR="${FONT_DIR}/FontAwesome"
+FONTS_SUBPATH="otfs"
+REPO_URL="https://github.com/FortAwesome/Font-Awesome.git"
+
+ensure_command git "instale git (sudo apt install -y git)"
+ensure_command fc-cache "instale fontconfig (sudo apt install -y fontconfig)"
+
+ensure_directory "$FONT_DIR"
+
+if [[ -d "${REPO_DIR}/.git" ]]; then
+    log_info "Atualizando Font Awesome..."
+    git -C "$REPO_DIR" pull --ff-only >/dev/null
+elif [[ -d "$REPO_DIR" ]]; then
+    log_warn "Diretório $REPO_DIR já existe e não parece ser um repositório git. Pulando atualização."
 else
-    echo "Font Awesome is not installed. Installing..."
+    log_info "Clonando Font Awesome..."
+    git clone --depth=1 "$REPO_URL" "$REPO_DIR" >/dev/null
+fi
 
-    # Clone the Font Awesome GitHub repository
-    git clone https://github.com/FortAwesome/Font-Awesome.git "$FONT_AWESOME_DIR"
-
-    # Copy the fonts to the user's fonts directory
-    cp "$FONT_AWESOME_DIR/otfs/"*.otf "$FONT_DIR"
-
-    # Update the font cache
-    fc-cache -f -v
-
-    echo "Font Awesome has been installed."
+if compgen -G "${REPO_DIR}/${FONTS_SUBPATH}/*.otf" >/dev/null; then
+    log_info "Copiando fontes OTF..."
+    cp "${REPO_DIR}/${FONTS_SUBPATH}/"*.otf "$FONT_DIR/"
+    fc-cache -f >/dev/null
+    log_info "Fontes Font Awesome instaladas em ${FONT_DIR}."
+else
+    log_warn "Nenhum arquivo OTF encontrado em ${REPO_DIR}/${FONTS_SUBPATH}."
 fi

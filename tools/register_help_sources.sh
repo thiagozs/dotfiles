@@ -1,57 +1,66 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
-# get a root folder
-root_dir=$(git rev-parse --show-toplevel)
+set -o errexit
+set -o pipefail
+set -o nounset
 
-# Ensure the .dotfiles directory exists
-mkdir -p $HOME/.dotfiles/paths
-mkdir -p $HOME/.dotfiles/aliases
+TOOLS_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)
+ROOT_DIR=$(cd "${TOOLS_DIR}/.." && pwd)
+# shellcheck disable=SC1091
+source "${ROOT_DIR}/scripts/lib/common.sh"
 
-# Function to add source line to .zshrc if it doesn't exist
-function add_source_if_not_exists() {
-    # Check if file name is provided
-    if [ -z "$1" ]; then
-        echo "Please provide a file to source."
-        return 1
+TARGET_ROOT="${HOME}/.dotfiles"
+PATHS_SOURCE="${ROOT_DIR}/paths"
+ALIASES_SOURCE="${ROOT_DIR}/aliases"
+ZSHRC="${ZSHRC:-$HOME/.zshrc}"
+
+ensure_zshrc() {
+    if [[ -f "$ZSHRC" ]]; then
+        return
     fi
 
-    # Full path to the file
-    file_path=$(realpath "$1")
+    ensure_directory "$(dirname "$ZSHRC")"
+    touch "$ZSHRC"
+    log_warn "Criado arquivo vazio $ZSHRC; personalize conforme necessário."
+}
 
-    # Check if file exists
-    if [ ! -f "$file_path" ]; then
-        echo "File does not exist: $file_path"
-        return 1
-    fi
-
-    # Check if .zshrc already contains the source line
-    if grep -Fxq "source $file_path" ~/.zshrc; then
-        echo ".zshrc already contains 'source $file_path'"
+resolve_path() {
+    local path="$1"
+    if command_exists realpath; then
+        realpath "$path"
     else
-        # Add source line to .zshrc
-        echo "source $file_path" >> ~/.zshrc
-        echo "Added 'source $file_path' to ~/.zshrc"
+        ensure_command python3 "instale python3"
+        python3 -c 'import os,sys; print(os.path.realpath(sys.argv[1]))' "$path"
     fi
 }
 
-script_dir="${root_dir}/paths"
-echo "Registering functions from folder: ${script_dir}"
+link_and_source() {
+    local source_dir="$1"
+    local destination_dir="$2"
+    local extension="$3"
 
-for file in "${script_dir}"/*.path; do
-    # Copy the file to $HOME/.dotfiles/paths
-    cp "$file" "$HOME/.dotfiles/paths/"
-    echo "Registering path from file: ${file}"
-    add_source_if_not_exists "$HOME/.dotfiles/paths/$(basename $file)"
-done
+    ensure_directory "$destination_dir"
 
-script_dir="${root_dir}/aliases"
-echo "Registering functions from folder: ${script_dir}"
+    shopt -s nullglob
+    for file in "${source_dir}"/*."${extension}"; do
+        local base
+        base="$(basename "$file")"
+        local target="${destination_dir}/${base}"
 
-for file in "${script_dir}"/*.aliases; do
-    # Copy the file to $HOME/.dotfiles/aliases
-    cp "$file" "$HOME/.dotfiles/aliases/"
-    echo "Registering functions from file: ${file}"
-    add_source_if_not_exists "$HOME/.dotfiles/aliases/$(basename $file)"
-done
+        ln -sfn "$(resolve_path "$file")" "$target"
+        log_info "Registrado link para ${target}"
 
-echo "Setup complete."
+        upsert_config_line "source ${target}" "$ZSHRC"
+    done
+    shopt -u nullglob
+}
+
+ensure_directory "$TARGET_ROOT"
+ensure_directory "${TARGET_ROOT}/paths"
+ensure_directory "${TARGET_ROOT}/aliases"
+ensure_zshrc
+
+link_and_source "$PATHS_SOURCE" "${TARGET_ROOT}/paths" "path"
+link_and_source "$ALIASES_SOURCE" "${TARGET_ROOT}/aliases" "aliases"
+
+log_info "Fontes de ajuda registradas com sucesso."
