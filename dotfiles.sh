@@ -203,7 +203,21 @@ run_step_command() {
         return 0
     fi
 
-    "${cmd[@]}"
+    # If the target command is a script file that isn't executable, run it with
+    # bash so we don't fail with "Permission denied" (exit code 126).
+    # Otherwise execute the command directly.
+    if [[ -n "${cmd[0]:-}" ]]; then
+        if [[ -x "${cmd[0]}" ]]; then
+            "${cmd[@]}"
+        elif [[ -f "${cmd[0]}" ]]; then
+            bash "${cmd[@]}"
+        else
+            # Fallback: try to execute anyway (may resolve commands like /usr/bin/apt)
+            "${cmd[@]}"
+        fi
+    else
+        log_warn "Comando vazio, pulando execução."
+    fi
 }
 
 if ((${#OPTIONALS[@]} > 0)); then
