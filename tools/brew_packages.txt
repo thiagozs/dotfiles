@@ -12,7 +12,7 @@ buf
 bzip2
 ca-certificates
 certifi
-codegpt
+# codegpt  # comentado: fórmula não disponível no Homebrew (verificar code2prompt)
 ctop
 curl
 cyrus-sasl
@@ -37,7 +37,7 @@ gh
 giflib
 gist
 git
-gitin
+# gitin   # comentado: não existe no repositório principal (verifique alternativas)
 gitleaks
 glibc
 gmp
@@ -132,6 +132,6 @@ viu
 xorgproto
 xplr
 xz
-youtube-dl
+yt-dlp
 zlib
 zstd
