@@ -27,7 +27,9 @@ docker_update_apt_cache() {
 
 docker_install_prereqs() {
     local -n cache_ref="$1"
-    docker_update_apt_cache cache_ref
+    # Passe o nome do parâmetro adiante para evitar namerefs aninhados com o
+    # mesmo nome (causa de 'circular name reference').
+    docker_update_apt_cache "$1"
     sudo apt-get install -y ca-certificates curl gnupg lsb-release
 }
 
@@ -79,7 +81,8 @@ docker_setup_repository() {
         echo "$repo" | sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
     fi
 
-    docker_update_apt_cache cache_ref
+    # Evita nameref circular: repassa o nome do parâmetro original
+    docker_update_apt_cache "$1"
 }
 
 docker_add_user_to_group() {

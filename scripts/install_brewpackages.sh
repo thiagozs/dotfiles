@@ -75,7 +75,12 @@ while IFS= read -r package; do
     fi
 
     log_info "Instalando $package..."
-    brew install "$package"
+    # Tentar instalar, mas não falhar todo o processo se a fórmula não existir
+    # ou ocorrer erro; registra aviso e continua com o próximo pacote.
+    if ! brew install "$package"; then
+        log_warn "Falha ao instalar '$package' via Homebrew — pulando (verifique manualmente)."
+        continue
+    fi
 done <"$MANIFEST"
 
 log_info "Processamento de pacotes Homebrew concluído."
