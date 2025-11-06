@@ -12,7 +12,7 @@ buf
 bzip2
 ca-certificates
 certifi
-# codegpt  # comentado: fórmula não disponível no Homebrew (verificar code2prompt)
+code2prompt
 ctop
 curl
 cyrus-sasl
@@ -28,7 +28,7 @@ emojify
 expat
 feh
 freetype
-fvm
+fnm
 fzf
 gcc
 gdbm
@@ -37,7 +37,7 @@ gh
 giflib
 gist
 git
-# gitin   # comentado: não existe no repositório principal (verifique alternativas)
+git-integration
 gitleaks
 glibc
 gmp
@@ -88,7 +88,7 @@ libxml2
 libxt
 libyaml
 linux-headers@5.15
-localstack-cli
+localstack
 luajit
 lux
 lz4
@@ -103,7 +103,7 @@ nodeenv
 nodenv
 oniguruma
 openldap
-openssl@1.1
+openssl@3
 openssl@3
 pandoc
 pcre
