@@ -61,3 +61,10 @@ setup() {
     [ "$status" -eq 0 ]
     [[ "${output}" =~ "Componente opcional desconhecido 'foo' ignorado" ]]
 }
+
+@test "docker_resolve_apt_codename aplica fallback (unit)" {
+    run bash -lc 'export DOTFILES_TEST_FAKE_CODENAME=no-such-codename-xyz; source ./scripts/lib/common.sh; source ./scripts/lib/docker.sh; docker_resolve_apt_codename'
+    [ "$status" -eq 0 ]
+    [[ "${output}" =~ "jammy" ]]
+    [[ "${output}" =~ "WARN" ]]
+}
