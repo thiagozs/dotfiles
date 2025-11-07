@@ -32,3 +32,9 @@ export DOTFILES_TEST_FAKE_CODENAME=noble
 ---
 
 Arquivo gerado automaticamente durante a sessão de manutenção do instalador.
+
+## 2025-11-07 — CI e validação
+
+- Adicionado workflow de validação (em PR) para executar os testes Bats em PRs e evitar regressões no instalador.
+- Adicionado um workflow (em PR) que executa o passo de instalação do Homebrew em runners Ubuntu e publica um comentário no PR com um resumo de quaisquer fórmulas que falharem — isso automatiza a mesma lógica de relatório que o instalador já escreve em `~/.dotfiles/install-failures.log`.
+- Validações finais foram executadas em VM (dotfiles-test): testes Bats passaram (10/10), o instalador rodou, e nenhum erro de Homebrew foi registrado no log de falhas.

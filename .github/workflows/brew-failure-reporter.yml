@@ -1,0 +1,64 @@
+name: Brew failure reporter
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  brew-report:
+    name: Run Homebrew installer and report failures
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (git, curl, tar)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential procps curl file git jq
+
+      - name: Install Homebrew (non-interactive)
+        env:
+          CI: true
+        run: |
+          /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" || true
+          echo "eval \"$(/home/linuxbrew/.linuxbrew/bin/brew shellenv)\"" >> $GITHUB_ENV || true
+
+      - name: Ensure install-failures.log path
+        run: |
+          mkdir -p "$HOME/.dotfiles"
+          : > "$HOME/.dotfiles/install-failures.log"
+
+      - name: Run installer step (Homebrew packages)
+        run: |
+          set -o pipefail
+          bash ./scripts/install_brewpackages.sh 2>&1 | tee /tmp/brew-install-output.txt || true
+          if [ -s "$HOME/.dotfiles/install-failures.log" ]; then
+            echo "FAILURES_DETECTED"
+            cat $HOME/.dotfiles/install-failures.log
+          else
+            echo "NO_FAILURES"
+          fi
+
+      - name: Post comment if failures
+        if: ${{ always() }}
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const fs = require('fs')
+            const failuresPath = `${process.env.HOME}/.dotfiles/install-failures.log`
+            const pr = context.payload.pull_request && context.payload.pull_request.number
+            if (!pr) return
+            let body = 'Brew install validation report:\n\n'
+            if (fs.existsSync(failuresPath)) {
+              const failures = fs.readFileSync(failuresPath, 'utf8').trim()
+              if (failures.length > 0) {
+                body += 'The installer recorded the following failed formulas (partial):\n\n'
+                body += failures.substring(0, 8000)
+              } else {
+                body += 'No failed formulas were recorded.'
+              }
+            } else {
+              body += 'No failures log was produced by the installer.'
+            }
+            await github.rest.issues.createComment({ owner: context.repo.owner, repo: context.repo.repo, issue_number: pr, body })
