@@ -14,6 +14,7 @@ USERNAME="${USER}"
 ADD_TO_SUDOERS=true
 INSTALL_DOCKER=true
 INSTALL_DOCKER_COMPOSE=true
+CREATE_USER=false
 
 APT_UPDATED=0
 
@@ -26,6 +27,7 @@ Opções:
   --skip-sudoers            Não alterar a configuração de sudo
   --skip-docker             Não instalar Docker Engine
   --skip-docker-compose     Não instalar Docker Compose (plugin)
+    --create-user             Criar o usuário informado se não existir (requer sudo)
   -h, --help                Exibe esta ajuda
 EOF
 }
@@ -41,6 +43,9 @@ while [[ $# -gt 0 ]]; do
             ;;
         --skip-docker)
             INSTALL_DOCKER=false
+            ;;
+        --create-user)
+            CREATE_USER=true
             ;;
         --skip-docker-compose)
             INSTALL_DOCKER_COMPOSE=false
@@ -75,7 +80,14 @@ ensure_user_exists() {
     if id "$USERNAME" &>/dev/null; then
         log_info "Usuário $USERNAME encontrado."
     else
-        fail "Usuário $USERNAME não existe."
+        if [[ "$CREATE_USER" == true ]]; then
+            log_info "Usuário $USERNAME não existe — criando usuário com sudo..."
+            # create user with home and bash shell
+            sudo useradd -m -s /bin/bash "$USERNAME"
+            log_info "Usuário $USERNAME criado."
+        else
+            fail "Usuário $USERNAME não existe. Para criar automaticamente, reexecute com --create-user (requer sudo), ou crie o usuário manualmente e execute novamente. Ex: sudo useradd -m -s /bin/bash $USERNAME"
+        fi
     fi
 }
 

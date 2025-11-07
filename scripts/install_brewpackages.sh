@@ -10,6 +10,7 @@ source "${SCRIPT_DIR}/lib/common.sh"
 
 MANIFEST="tools/brew_packages.txt"
 SKIP_UPGRADE=false
+FAILURES_LOG="${HOME}/.dotfiles/install-failures.log"
 
 show_help() {
     cat <<'EOF'
@@ -59,6 +60,10 @@ if [[ "$SKIP_UPGRADE" == false ]]; then
 fi
 
 log_info "Instalando pacotes listados em $MANIFEST..."
+# reset failures log for this run
+ensure_directory "$(dirname "$FAILURES_LOG")"
+: > "$FAILURES_LOG" || true
+failed_any=false
 while IFS= read -r package; do
     package="${package%%\#*}"
     package="$(echo "$package" | xargs)"
@@ -79,8 +84,19 @@ while IFS= read -r package; do
     # ou ocorrer erro; registra aviso e continua com o próximo pacote.
     if ! brew install "$package"; then
         log_warn "Falha ao instalar '$package' via Homebrew — pulando (verifique manualmente)."
+        # record failure for audit
+        printf "%s\n" "$package" >>"$FAILURES_LOG" || true
+        failed_any=true
         continue
     fi
 done <"$MANIFEST"
 
-log_info "Processamento de pacotes Homebrew concluído."
+if [[ "$failed_any" == true ]]; then
+    log_warn "Algumas fórmulas falharam. Verifique o log: $FAILURES_LOG"
+    log_info "Resumo das fórmulas que falharam:" 
+    if [[ -s "$FAILURES_LOG" ]]; then
+        sed -n '1,200p' "$FAILURES_LOG" | while IFS= read -r f; do log_warn " - $f"; done
+    fi
+else
+    log_info "Processamento de pacotes Homebrew concluído."
+fi
